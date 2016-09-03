@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from django.template.loader import render_to_string
+from django.utils.html import escape
 
 from lists.views import home_page
 from lists.models import Item, List
@@ -46,6 +47,19 @@ class NewListTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, '/lists/%d/' % new_list.id)
 
+    def test_validation_errors_are_sent_back_to_home_page_template(self):
+        response = self.client.post('/lists/new', data={'item_text': ''})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'lists/home.html')
+        expected_error = escape("You can't have an empty list item")
+        self.assertContains(response, expected_error)
+
+    def test_invalid_list_items_arent_saved(self):
+        self.client.post('/lists/new', data={'item_text': ''})
+        self.assertEqual(List.objects.count(), 0)
+        self.assertEqual(Item.objects.count(), 0)
+
+
 class ListViewTest(TestCase):
 
     def test_uses_list_template(self):
@@ -55,12 +69,13 @@ class ListViewTest(TestCase):
 
     def test_displays_only_items_for_that_list(self):
         correct_list = List.objects.create()
-        Item.objects.create(text='itemey 1', list=correct_list)
-        Item.objects.create(text='itemey 2', list=correct_list)
 
-        other_list = List.objects.create()
+        Item.objects.create(text='itemey 1', list=correct_list) 
+        Item.objects.create(text='itemey 2', list=correct_list) 
 
-        Item.objects.create(text='other list item 1', list=other_list)
+        other_list = List.objects.create() 
+
+        Item.objects.create(text='other list item 1', list=other_list) 
         Item.objects.create(text='other list item 2', list=other_list)
 
         response = self.client.get('/lists/%d/' % correct_list.id)
