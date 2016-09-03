@@ -18,9 +18,11 @@ def _get_latest_source(source_folder):
     run('cd %s && git reset --hard %s' % (source_folder, current_commit))
 
 def _update_settings(source_folder, site_folder):
-    setting_path = source_folder + '/superlists/setting.py'
+    setting_path = source_folder + '/superlists/settings.py'
+    site_name = env.host
+    site_ip = '192.168.199.189'
     sed(setting_path, 'DEBUG = True', 'DEBUG = False')
-    sed(setting_path, 'ALLOWED_HOSTS =.+$', 'ALLOWED_HOSTS = ["%s"]' % (site_name, ))
+    sed(setting_path, 'ALLOWED_HOSTS =.+$', 'ALLOWED_HOSTS = ["%s", "%s"]' % (site_name, site_ip))
     secret_key_file = source_folder + '/superlists/secret_key.py'
     if not exists(secret_key_file):
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
@@ -37,12 +39,12 @@ def _update_virtualenv(source_folder):
     ))
 
 def _update_static_files(source_folder):
-    run('cd %s && ../virutalenv/bin/python3 manage.py collectstatic --noinput' % (
+    run('cd %s && ../virtualenv/bin/python3 manage.py collectstatic --noinput' % (
         source_folder,
     ));
 
 def _update_database(source_folder):
-    run('cd %s && ../virutalenv/bin/python3 manage.py migrate --noinput' % (
+    run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (
         source_folder, ))
 
 
