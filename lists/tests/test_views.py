@@ -1,3 +1,4 @@
+from .base import pure
 from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
@@ -5,20 +6,6 @@ from django.template.loader import render_to_string
 
 from lists.views import home_page
 from lists.models import Item, List
-
-import re
-
-def remove_csrf_token(content):
-    p = re.compile("<.*?name='csrfmiddlewaretoken'.*?>")
-    return re.sub(p, '', content)
-
-    
-def none_empty_ch(content):
-    p = re.compile('\s')
-    return re.sub(p, '', content)
-
-def pure(content):
-    return none_empty_ch(remove_csrf_token(content))
 
 class HomePageTest(TestCase):
     
@@ -31,10 +18,10 @@ class HomePageTest(TestCase):
         response = home_page(request)
         # We shouldn't test const varible
         expected_html = render_to_string('lists/home.html')
-        response_content = remove_csrf_token(response.content.decode())
+        response_content = response.content.decode()
         self.assertEqual(
-            none_empty_ch(response_content),
-            none_empty_ch(expected_html),
+            pure(response_content),
+            pure(expected_html),
             '\nexpect:\n%s\nbut:\n%s\n' % (expected_html, response_content)
         )
     
@@ -117,36 +104,4 @@ class NewItemTest(TestCase):
         )
 
         self.assertRedirects(response, '/lists/%d/' % correct_list.id)
-   
-
-
-class ListAndItemModelTest(TestCase):
-    
-    def test_saving_and_retrieving_items(self):
-        list_ = List()
-        list_.save()
-
-        first_item = Item()
-        first_item.text = 'The first (ever) list item'
-        first_item.list = list_
-        first_item.save()
-
-        second_item = Item()
-        second_item.text = 'Item the second'
-        second_item.list = list_
-        second_item.save()
-
-        saved_list = List.objects.first()
-        self.assertEqual(saved_list, list_)
-
-        saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
-
-        first_saved_item = saved_items[0]
-        second_saved_item = saved_items[1]
-        self.assertEqual(first_saved_item.text, first_item.text)
-        self.assertEqual(first_saved_item.list, list_)
-        self.assertEqual(second_saved_item.text, second_item.text)
-        self.assertEqual(second_saved_item.list, list_)
-
 
