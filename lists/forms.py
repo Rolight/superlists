@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from lists.models import Item
 
@@ -16,5 +17,7 @@ class ItemForm(forms.models.ModelForm):
             }),
         }
         error_messages = {
-            'text': {'required': EMPTY_LIST_ERROR}
+            'text': {
+                'required': _(EMPTY_LIST_ERROR),
+            },
         }

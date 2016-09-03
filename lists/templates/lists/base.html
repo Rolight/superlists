@@ -14,13 +14,12 @@
 	                <div class="text-center">
 		                <h1>{% block header_text %}{% endblock %}</h1>
 		                <form method="POST" action="{% block form_action %}{% endblock %}">
+		                    {{ form.non_field_errors }}
 		                    {{ form.text }}
 		                    {% csrf_token %}
-		                    {% if error %}
 		                        <div class="form-group has-error">
-		                            <span class="help-block">{{ error }}</span>
+		                            <div class="help-block">{{ form.name.errors }}</div>
 		                        </div>
-		                    {% endif %}
 		                </form>
 		            </div>
 		        </div>

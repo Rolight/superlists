@@ -8,6 +8,7 @@ import sys
 
 class ItemValidationTest(FunctionalTest):
     
+    @skip
     def test_cannot_add_empty_list_items(self):
         self.browser.get(self.server_url)
         self.get_item_input_box().send_keys('\n')
