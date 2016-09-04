@@ -18,7 +18,7 @@
 		                    {{ form.text }}
 		                    {% csrf_token %}
 		                        <div class="form-group has-error">
-		                            <div class="help-block">{{ form.name.errors }}</div>
+		                            <div class="help-block">{{ form.errors.text }}</div>
 		                        </div>
 		                </form>
 		            </div>

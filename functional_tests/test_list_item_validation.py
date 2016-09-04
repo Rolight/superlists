@@ -39,4 +39,4 @@ class ItemValidationTest(FunctionalTest):
 
         self.get_item_input_box().send_keys('Buy wellies\n')
         error = self.browser.find_element_by_css_selector('.has-error')
-        self.assertEqual(error.text, "You've already got this your list")
+        self.assertEqual(error.text, "You've already got this in your list")
