@@ -55,8 +55,7 @@ class NewListTest(TestCase):
     def test_for_invalid_input_renders_home_template(self):
         response = self.client.post('/lists/new', data={'text': ''})
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'lists/home.html')
-
+        self.assertTemplateUsed(response, 'lists/home.html') 
     @skip
     def test_validation_errors_are_shown_on_home_page(self):
         response = self.client.post('/lists/new', data={'text': ''})
@@ -154,3 +153,17 @@ class ListViewTest(TestCase):
         response = self.client.get('/lists/%d/' % list_.id)
         self.assertIsInstance(response.context['form'], ItemForm)
         self.assertContains(response, 'name="text"')
+
+    def test_duplicate_item_validation_errors_end_up_on_lists_page(self):
+        list1 = List.objects.create()
+        item1 = Item.objects.create(list=list1, text='textey')
+
+        response = self.client.post(
+            '/lists/%d/' % (list1.id, ),
+            data={'text': 'textey'}
+        )
+
+        expected_error = escape("You've already got this in your list")
+        self.assertContains(response, expected_error)
+        self.assertTemplateUsed(response, 'lists/list.html')
+        self.assertEqual(Item.objects.all().count(), 1)
